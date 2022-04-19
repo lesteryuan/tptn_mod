@@ -4,7 +4,6 @@ tnmod <- function(df1, runmod = T) {
 
     print(nrow(df1))
 
-    nperiod <- 6
     df1$yday.q <- df1$month
     df1$yday.q <- factor(df1$yday.q)
     print(table(df1$yday.q))
@@ -97,6 +96,7 @@ tnmod <- function(df1, runmod = T) {
             etad2 ~ normal(0,1);
 
             k[3] ~ normal(0.85,0.01);
+          //  k[3] ~ normal(1,1);
             k[1] ~ normal(1,1);
             k[2] ~ normal(1,1);
             muu ~ normal(0,3);
@@ -108,10 +108,10 @@ tnmod <- function(df1, runmod = T) {
             etab ~ normal(0,1);
             sigb ~ cauchy(0,3);
 
-            sigtn ~ cauchy(0,3);
-
+//            sigtn ~ cauchy(0,3);
+            sigtn ~ normal(0.1, 0.006);
             tss ~ student_t(4,tss_mn, sigtss);
-            tn ~ normal(tn_mn, sigtn);
+            tn ~ student_t(4,tn_mn, sigtn);
         }
     '
     rmsout <- function(x,y) sqrt(sum((x-y)^2, na.rm = T)/
@@ -125,7 +125,7 @@ tnmod <- function(df1, runmod = T) {
 
         u <- exp(apply(varout$u, 2, mean))
         tnpred <- exp(mud[1])*df$chl^k[1] +
-            exp(d2[df$lakenum])*u^k[2]
+            exp(d2[df$seasnum])*u^k[2]
         return(tnpred)
     }
     extractvars <- c("mud", "k", "u", "mub", "d1", "d2", "sigd")
@@ -149,7 +149,7 @@ tnmod <- function(df1, runmod = T) {
                     data = datstan, iter = 1800, chains = nchains,
                     warmup = 600, thin= 1,
                     control = list(adapt_delta = 0.98, max_treedepth = 14))
-        save(fit, file = "fitout.rda")
+
         varout <- extract(fit, pars = extractvars)
 
         tnpred <- gettn(df1, varout)
@@ -161,5 +161,12 @@ tnmod <- function(df1, runmod = T) {
         return(varout)
     }
 
+    plot(log(df1$chl), log(df1$tn - df1$dtn))
+    k <- apply(varout.test$k, 2, mean)
+    mud <- apply(varout.test$mud, 2, mean)
+    abline(mud[1], k[1])
+
+
 }
 varout.test<- tnmod(moi3.all, runmod = T)
+tnmod(moi3.all, runmod = F)
