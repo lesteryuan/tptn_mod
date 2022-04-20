@@ -106,10 +106,6 @@ tnmod <- function(df1, runmod = T) {
             etad1 ~ normal(0,1);
             etad2 ~ normal(0,1);
 
-            k[3] ~ normal(0.85,0.01); // prior for slope of VSS-Chl relationship
-                                      // from analysis of a much larger set
-                                      // of VSS-Chl data
-            k[1] ~ normal(1,1);       // weak priors centered at 1.
             k[2] ~ normal(1,1);
             muu ~ normal(0,3);
             etau ~ normal(0,1);
@@ -120,13 +116,6 @@ tnmod <- function(df1, runmod = T) {
             etab ~ normal(0,1);
             sigb ~ cauchy(0,3);
 
-            sigtn1 ~ cauchy(0,3);
-            sigtn2 ~ normal(0.1, 0.01);  // strong prior for measurement error
-                                         // for low values of TN
-
-            tss ~ student_t(4,tss_mn, sigtss);
-            tn1 ~ normal(tn_mn[ip1], sigtn1);
-            tn2 ~ normal(exp(tn_mn[ip2]), sigtn2);
         }
     '
     rmsout <- function(x,y) sqrt(sum((x-y)^2, na.rm = T)/
@@ -190,7 +179,3 @@ tnmod <- function(df1, runmod = T) {
         return(varout)
     }
 
-    return()
-
-}
-varout <- tnmod(moi3.all, runmod = T)
