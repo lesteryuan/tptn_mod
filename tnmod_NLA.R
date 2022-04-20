@@ -4,9 +4,11 @@ tn.model <- function(df1, runmod = F) {
     require(rstan)
     nchains <- 3    # number of chains
 
+
     ## omit records that are missing data
     incvec <- ! is.na(df1$ntl.result) & ! is.na(df1$no3no2.result) &
-        ! is.na(df1$chl) & ! is.na(df1$doc.result)
+        ! is.na(df1$chl) & ! is.na(df1$doc.result) & !is.na(df1$us.l3code)
+
     cat("N omitted due to missing records:", sum(!incvec), "\n")
     df1 <- df1[incvec,]
     print(nrow(df1))
@@ -59,26 +61,6 @@ tn.model <- function(df1, runmod = F) {
 
     df1 <- df1[!incvec,]
 
-
-    ## make seas factor
-    xcut <- seq(min(df1$yday.x), by = 30, length = 6)
-    xcut[6] <- max(df1$yday.x)
-    seasfac <- cut(df1$yday.x, xcut, include.lowest = T)
-    df1$seasnum <- as.numeric(seasfac)
-
-    ## make chl factor for DOC model
-    cutp <- quantile(df1$chl.sc, prob = seq(0, 1, length = 7))
-    cutf <- cut(df1$chl.sc, cutp, include.lowest = T)
-    df1$chlfac <- as.numeric(cutf)
-    print(table(df1$chlfac))
-
-    ## calculate priors from MO model
-    b0 <- exp(-2.107115)
-    load("mn.val.mo.rda")
-    k0 <- 0.8484
-    b1 <- b0*(chlsc/mn.val["chl"])^k0*(mn.val["tn"]*1000/tnsc)
-    print(log(b1))
-
     tnchldat <- df1[, c("chl", "chl.sc", "tkn", "doc.sc", "doc.result",
                         "statenum", "state", "ntl.result", "tn.sc",
                         "no3no2.result", "nox.sc", "index.lat.dd",
@@ -90,11 +72,7 @@ tn.model <- function(df1, runmod = F) {
                     tn = log(df1$tn.sc - df1$nox.sc),
                     nox = log(df1$nox.sc),
                     doc = log(df1$doc.sc),
-                    chl = log(df1$chl.sc),
-                    nseas = max(df1$seasnum),
-                    seasnum = df1$seasnum,
-                    chlnum = df1$chlfac,
-                    nchl = max(df1$chlfac))
+                    chl = log(df1$chl.sc))
 
     print(str(datstan))
 
