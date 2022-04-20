@@ -121,8 +121,7 @@ tnmod <- function(df1, runmod = T) {
             sigb ~ cauchy(0,3);
 
             sigtn1 ~ cauchy(0,3);
-            sigtn2 ~ normal(0.1, 0.01);  // strong prior for measurement error
-                                         // for low values of TN
+            sigtn2 ~ cauchy(0,3);
 
             tss ~ student_t(4,tss_mn, sigtss);
             tn1 ~ normal(tn_mn[ip1], sigtn1);
@@ -179,6 +178,7 @@ tnmod <- function(df1, runmod = T) {
                     data = datstan, iter = 1800, chains = nchains,
                     warmup = 600, thin= 1,
                     control = list(adapt_delta = 0.98, max_treedepth = 14))
+        save(fit, file = "fitout.rda")
         varout <- extract(fit, pars = extractvars)
 
         tnpred <- gettn(df1, varout)
