@@ -52,13 +52,8 @@ ntumodel <- function(df1, runmod = T) {
     df1$us.l3code <- factor(df1$us.l3code)
     df1$econum <- as.numeric(df1$us.l3code)
 
-    ## save data out to disk
-    tpchldat <- df1
-    save(tpchldat, chlsc, cutp.depth, file = "tpchldat.rda")
-
     datstan <- list(n = nrow(df1),
                     neco = max(df1$econum), econum = df1$econum,
-                    ntu = log(df1$turb.result),
                     tp = log(df1$tp.sc),
                     chl = log(df1$chl.sc))
 
@@ -71,9 +66,6 @@ ntumodel <- function(df1, runmod = T) {
             int econum[n];         // ecoregion assigment
             vector[n] tp;          // TP
             vector[n] chl;         // Scaled Chl
-
-            int nseas;
-            int seasnum[n];
         }
         parameters {
             real muk;  // exponents on chl and u in models
