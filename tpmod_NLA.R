@@ -40,6 +40,9 @@ ntumodel <- function(df1, runmod = T) {
     df1$chl.sc <- df1$chl/chlsc
     df1$tp.sc <- df1$ptl.result/tpsc
 
+    ## save chlsc to use in TN model
+    save(chlsc, file = "chlsc.rda")
+
     ##drop HI, only dealing with conterminous US
     incvec <- df1$st.nla2012 == "HI"
     df1 <- df1[!incvec,]
